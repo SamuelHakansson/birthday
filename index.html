@@ -601,6 +601,7 @@
 <script>
   // YouTube video IDs
   var TRACK_1 = 'xMV6l2y67rk'; // The xx - Intro
+  var TRACK_1_START = 2; // start 2 seconds in
   var TRACK_2 = 'eimgRedLkkU'; // Empire of the Sun - Walking on a Dream
 
   // ---- Stars ----
@@ -838,7 +839,7 @@
     launchConfetti();
 
     if (ytPlayer1 && ytPlayer1.playVideo) {
-      try { ytPlayer1.playVideo(); activePlayer = ytPlayer1; } catch(e) {}
+      try { ytPlayer1.seekTo(TRACK_1_START, true); ytPlayer1.playVideo(); activePlayer = ytPlayer1; } catch(e) {}
     }
   });
 
