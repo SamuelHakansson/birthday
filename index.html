@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday Paulina</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400&display=swap');
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #f0c27f;
+    --coral: #ff6b6b;
+    --pink: #f78fb3;
+    --purple-deep: #0f0c29;
+    --purple-mid: #302b63;
+    --purple-light: #24243e;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
+  }
+
+  body {
+    background: var(--purple-deep);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* ---- Stars background ---- */
+  #stars-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ---- Sections ---- */
+  section {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    scroll-snap-align: start;
+  }
+
+  /* ---- Splash screen ---- */
+  #splash {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: var(--purple-deep);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
+  #splash.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #splash .tap-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+    animation: pulse 2s ease-in-out infinite;
+    letter-spacing: 0.1em;
+  }
+  #splash .star-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  /* ---- Greeting section ---- */
+  .greeting h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    text-align: center;
+    background: linear-gradient(135deg, var(--gold), var(--coral), var(--pink), var(--gold));
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 4s ease-in-out infinite;
+    line-height: 1.2;
+  }
+  .greeting .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: var(--gold);
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fade-in-up 1s ease 1.5s forwards;
+  }
+  .greeting .age {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(6rem, 20vw, 12rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--coral));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    opacity: 0;
+    animation: scale-in 0.8s ease 0.8s forwards;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  /* ---- Confetti ---- */
+  .confetti-container {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 99;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    top: -10px;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    to {
+      top: 110vh;
+      transform: rotateZ(720deg);
+    }
+  }
+
+  /* ---- Photos section ---- */
+  .photos-section {
+    min-height: auto;
+    padding: 4rem 2rem;
+  }
+  .photos-section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+    color: var(--gold);
+    margin-bottom: 3rem;
+    text-align: center;
+  }
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    max-width: 900px;
+    width: 100%;
+  }
+  .photo-card {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  }
+  .photo-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .photo-card:hover img {
+    transform: scale(1.05);
+  }
+  .photo-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(240,194,127,0.3);
+    border-radius: 16px;
+    pointer-events: none;
+  }
+
+  /* ---- Concert reveal ---- */
+  .concert-section {
+    text-align: center;
+  }
+  .concert-card {
+    background: linear-gradient(135deg, rgba(48,43,99,0.8), rgba(36,36,62,0.8));
+    border: 1px solid rgba(240,194,127,0.3);
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    max-width: 500px;
+    width: 100%;
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  }
+  .concert-card.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .concert-card .label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--pink);
+    margin-bottom: 1rem;
+  }
+  .concert-card .artist {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3rem);
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--gold), var(--coral));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+  .concert-card .details {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.8;
+  }
+  .concert-card .details .date {
+    font-weight: 400;
+    color: var(--gold);
+    font-size: 1.2rem;
+  }
+  .concert-card .details .venue {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.95rem;
+  }
+  .concert-card a {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.6rem 1.5rem;
+    border: 1px solid var(--gold);
+    border-radius: 50px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+  }
+  .concert-card a:hover {
+    background: var(--gold);
+    color: var(--purple-deep);
+  }
+
+  .concert-divider {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---- Closing section ---- */
+  .closing {
+    text-align: center;
+  }
+  .closing .heart {
+    font-size: 3rem;
+    animation: heartbeat 1.5s ease-in-out infinite;
+    margin-bottom: 1.5rem;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    15% { transform: scale(1.15); }
+    30% { transform: scale(1); }
+    45% { transform: scale(1.1); }
+  }
+  .closing h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    color: var(--gold);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  .closing p {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    max-width: 500px;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  .closing .message {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .closing .message.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- YouTube players (hidden) ---- */
+  .yt-hidden-player {
+    position: fixed;
+    bottom: -200px;
+    left: -200px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ---- Particle burst on concert reveal ---- */
+  .burst-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: burst 1s ease-out forwards;
+  }
+  @keyframes burst {
+    from {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(var(--tx), var(--ty)) scale(0);
+    }
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 600px) {
+    .photo-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .concert-card {
+      padding: 2rem 1.5rem;
+    }
+    section {
+      padding: 1.5rem;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stars background -->
+<canvas id="stars-canvas"></canvas>
+
+<!-- Splash screen -->
+<div id="splash">
+  <div class="star-icon">&#10024;</div>
+  <div class="tap-text">Tap to begin</div>
+</div>
+
+<!-- Confetti container -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- Section 1: Greeting -->
+<section class="greeting" id="greeting">
+  <div class="age">30</div>
+  <h1>Happy Birthday<br>Paulina</h1>
+  <p class="subtitle">Here's to a new chapter</p>
+</section>
+
+<!-- Section 2: Photos -->
+<section class="photos-section" id="photos">
+  <h2>Some of my favourite moments with you</h2>
+  <div class="photo-grid">
+    <div class="photo-card">
+      <img src="images/20240405_225945.jpg" alt="Dinner" loading="lazy">
+    </div>
+    <div class="photo-card">
+      <img src="images/20240627_141751.jpg" alt="Barcelona" loading="lazy">
+    </div>
+    <div class="photo-card">
+      <img src="images/20250127_163106.jpg" alt="Beach" loading="lazy">
+    </div>
+    <div class="photo-card">
+      <img src="images/20250608_203556.jpg" alt="Milan" loading="lazy">
+    </div>
+    <div class="photo-card">
+      <img src="images/20250910_192833.jpg" alt="Marina sunset" loading="lazy">
+    </div>
+    <div class="photo-card">
+      <img src="images/20251231_190353.jpg" alt="New Years" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- Section 3: Concert 1 - The xx -->
+<section class="concert-section" id="concert1">
+  <div class="concert-card" id="card1">
+    <div class="label">Your birthday present</div>
+    <div class="artist">The xx</div>
+    <div class="details">
+      <div class="date">June 2, 2026</div>
+      <div class="venue">Landesmuseum Zürich</div>
+      <div class="venue" style="margin-top:0.3rem;">ZKB Unique Moments</div>
+    </div>
+    <a href="https://unique-moments.ch/hospitality-the-xx/" target="_blank" rel="noopener">View event</a>
+  </div>
+</section>
+
+<!-- Divider -->
+<div class="concert-divider"></div>
+
+<!-- Section 4: Concert 2 - Empire of the Sun -->
+<section class="concert-section" id="concert2">
+  <div class="concert-card" id="card2">
+    <div class="label">And that's not all...</div>
+    <div class="artist">Empire of<br>the Sun</div>
+    <div class="details">
+      <div class="date">June 18, 2026</div>
+      <div class="venue">ZOA City, Zürich</div>
+    </div>
+    <a href="https://zoacity.ch/en/empireofthesun/" target="_blank" rel="noopener">View event</a>
+  </div>
+</section>
+
+<!-- Section 5: Closing -->
+<section class="closing" id="closing">
+  <div class="message" id="closing-message">
+    <div class="heart">&hearts;</div>
+    <h2>Here's to your best year yet</h2>
+    <p>I can't wait to share these nights with you. Happy 30th, my love.</p>
+  </div>
+</section>
+
+<!-- Hidden YouTube players -->
+<div id="yt-player-1" class="yt-hidden-player"></div>
+<div id="yt-player-2" class="yt-hidden-player"></div>
+
+<script>
+  // YouTube video IDs
+  var TRACK_1 = 'xMV6l2y67rk'; // The xx - Intro
+  var TRACK_2 = 'eimgRedLkkU'; // Empire of the Sun - Walking on a Dream
+
+  // ---- Stars ----
+  const canvas = document.getElementById('stars-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function createStars() {
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 3000);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 1.5 + 0.5,
+        alpha: Math.random(),
+        alphaDir: (Math.random() - 0.5) * 0.01,
+      });
+    }
+  }
+
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      s.alpha += s.alphaDir;
+      if (s.alpha <= 0.2 || s.alpha >= 1) s.alphaDir *= -1;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, ' + s.alpha + ')';
+      ctx.fill();
+    }
+    requestAnimationFrame(drawStars);
+  }
+
+  window.addEventListener('resize', function() { resizeCanvas(); createStars(); });
+  resizeCanvas();
+  createStars();
+  drawStars();
+
+  // ---- Confetti (safe DOM creation) ----
+  const CONFETTI_COLORS = ['#f0c27f', '#ff6b6b', '#f78fb3', '#a29bfe', '#ffeaa7', '#55efc4', '#fdcb6e'];
+
+  function clearConfetti() {
+    var container = document.getElementById('confetti-container');
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+  }
+
+  function launchConfetti() {
+    var container = document.getElementById('confetti-container');
+    for (var i = 0; i < 80; i++) {
+      var piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.backgroundColor = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
+      piece.style.width = (Math.random() * 8 + 6) + 'px';
+      piece.style.height = (Math.random() * 8 + 6) + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      piece.style.animationDelay = (Math.random() * 1.5) + 's';
+      container.appendChild(piece);
+    }
+    setTimeout(clearConfetti, 5000);
+  }
+
+  // ---- Particle burst on concert cards ----
+  function burstParticles(element) {
+    var rect = element.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var colors = ['#f0c27f', '#ff6b6b', '#f78fb3', '#a29bfe', '#ffeaa7'];
+    for (var i = 0; i < 30; i++) {
+      var p = document.createElement('div');
+      p.className = 'burst-particle';
+      var angle = (Math.PI * 2 * i) / 30;
+      var dist = 60 + Math.random() * 80;
+      p.style.left = cx + 'px';
+      p.style.top = cy + 'px';
+      p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      p.style.setProperty('--tx', Math.cos(angle) * dist + 'px');
+      p.style.setProperty('--ty', Math.sin(angle) * dist + 'px');
+      document.body.appendChild(p);
+      (function(el) {
+        setTimeout(function() { el.remove(); }, 1000);
+      })(p);
+    }
+  }
+
+  // ---- YouTube audio (two players for crossfade) ----
+  var ytPlayer1, ytPlayer2;
+  var activePlayer = null;
+  var crossfadeTimer = null;
+
+  function loadYouTubeAPI() {
+    var tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  }
+
+  function createPlayer(elementId, videoId, onReady) {
+    return new YT.Player(elementId, {
+      height: '1',
+      width: '1',
+      videoId: videoId,
+      playerVars: {
+        autoplay: 0,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        modestbranding: 1,
+      },
+      events: {
+        onReady: function(e) {
+          e.target.setVolume(60);
+          if (onReady) onReady(e);
+        }
+      }
+    });
+  }
+
+  window.onYouTubeIframeAPIReady = function() {
+    ytPlayer1 = createPlayer('yt-player-1', TRACK_1);
+    ytPlayer2 = createPlayer('yt-player-2', TRACK_2);
+  };
+
+  function crossfadeTo(newPlayer, oldPlayer) {
+    if (crossfadeTimer) return;
+    if (!newPlayer || !oldPlayer) return;
+    if (activePlayer === newPlayer) return;
+
+    var fadeSteps = 20;
+    var fadeDuration = 2000;
+    var stepTime = fadeDuration / fadeSteps;
+    var step = 0;
+
+    try { newPlayer.setVolume(0); newPlayer.playVideo(); } catch(e) {}
+
+    crossfadeTimer = setInterval(function() {
+      step++;
+      var progress = step / fadeSteps;
+      try {
+        oldPlayer.setVolume(Math.round(60 * (1 - progress)));
+        newPlayer.setVolume(Math.round(60 * progress));
+      } catch(e) {}
+      if (step >= fadeSteps) {
+        clearInterval(crossfadeTimer);
+        crossfadeTimer = null;
+        try { oldPlayer.pauseVideo(); } catch(e) {}
+        activePlayer = newPlayer;
+      }
+    }, stepTime);
+  }
+
+  // ---- Scroll-triggered animations ----
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+
+        if (entry.target.id === 'card1' || entry.target.id === 'card2') {
+          setTimeout(function() { burstParticles(entry.target); }, 400);
+        }
+
+        // Crossfade to Empire of the Sun when card2 appears
+        if (entry.target.id === 'card2') {
+          crossfadeTo(ytPlayer2, ytPlayer1);
+        }
+
+        if (entry.target.id === 'closing-message') {
+          launchConfetti();
+        }
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.photo-card, .concert-card, .message').forEach(function(el) {
+    observer.observe(el);
+  });
+
+  // ---- Start experience ----
+  document.getElementById('splash').addEventListener('click', function() {
+    document.getElementById('splash').classList.add('hidden');
+    launchConfetti();
+
+    if (ytPlayer1 && ytPlayer1.playVideo) {
+      try { ytPlayer1.playVideo(); activePlayer = ytPlayer1; } catch(e) {}
+    }
+  });
+
+  // Load YouTube API on page load
+  loadYouTubeAPI();
+</script>
+
+</body>
+</html>
