@@ -216,6 +216,89 @@
     pointer-events: none;
   }
 
+  /* ---- Personal intro section ---- */
+  .intro-section {
+    text-align: center;
+    min-height: 60vh;
+  }
+  .intro-section .intro-text {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: clamp(1.2rem, 3vw, 1.6rem);
+    color: rgba(255,255,255,0.8);
+    max-width: 550px;
+    line-height: 1.8;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1s ease, transform 1s ease;
+  }
+  .intro-section .intro-text.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ---- Band photos ---- */
+  .band-photos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-width: 500px;
+    width: 100%;
+    margin-top: 2rem;
+  }
+  .band-photo {
+    border-radius: 12px;
+    overflow: hidden;
+    aspect-ratio: 16/10;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .band-photo.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .band-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---- Countdown ---- */
+  .countdown {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.2rem;
+    justify-content: center;
+  }
+  .countdown-unit {
+    text-align: center;
+  }
+  .countdown-unit .number {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .countdown-unit .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.5);
+    margin-top: 0.2rem;
+  }
+
+  /* ---- Teaser text ---- */
+  .teaser {
+    font-style: italic;
+    color: rgba(255,255,255,0.55);
+    font-size: 0.95rem;
+    margin-top: 1.2rem;
+    max-width: 350px;
+    line-height: 1.5;
+  }
+
   /* ---- Concert reveal ---- */
   .concert-section {
     text-align: center;
@@ -379,6 +462,12 @@
     section {
       padding: 1.5rem;
     }
+    .band-photos {
+      gap: 0.75rem;
+    }
+    .countdown-unit .number {
+      font-size: 1.4rem;
+    }
   }
 </style>
 </head>
@@ -428,7 +517,16 @@
   </div>
 </section>
 
-<!-- Section 3: Concert 1 - The xx -->
+<!-- Section 3: Personal intro -->
+<section class="intro-section" id="intro">
+  <div class="intro-text" id="intro-text">
+    This year I wanted to give you something<br>
+    we can experience together...<br><br>
+    Two nights of incredible music.
+  </div>
+</section>
+
+<!-- Section 4: Concert 1 - The xx -->
 <section class="concert-section" id="concert1">
   <div class="concert-card" id="card1">
     <div class="label">Your birthday present</div>
@@ -437,15 +535,25 @@
       <div class="date">June 2, 2026</div>
       <div class="venue">Landesmuseum Zürich</div>
       <div class="venue" style="margin-top:0.3rem;">ZKB Unique Moments</div>
+      <div class="countdown" id="countdown1"></div>
     </div>
+    <p class="teaser">VIP hospitality with the best view of the stage, welcome drinks, and an unforgettable night</p>
     <a href="https://unique-moments.ch/hospitality-the-xx/" target="_blank" rel="noopener">View event</a>
+  </div>
+  <div class="band-photos">
+    <div class="band-photo">
+      <img src="images/thexx-live.jpg" alt="The xx live" loading="lazy">
+    </div>
+    <div class="band-photo">
+      <img src="images/thexx-band.jpg" alt="The xx" loading="lazy">
+    </div>
   </div>
 </section>
 
 <!-- Divider -->
 <div class="concert-divider"></div>
 
-<!-- Section 4: Concert 2 - Empire of the Sun -->
+<!-- Section 5: Concert 2 - Empire of the Sun -->
 <section class="concert-section" id="concert2">
   <div class="concert-card" id="card2">
     <div class="label">And that's not all...</div>
@@ -453,8 +561,18 @@
     <div class="details">
       <div class="date">June 18, 2026</div>
       <div class="venue">ZOA City, Zürich</div>
+      <div class="countdown" id="countdown2"></div>
     </div>
+    <p class="teaser">Spectacular visuals, theatrical performance, and larger-than-life production</p>
     <a href="https://zoacity.ch/en/empireofthesun/" target="_blank" rel="noopener">View event</a>
+  </div>
+  <div class="band-photos">
+    <div class="band-photo">
+      <img src="images/eots-live.jpg" alt="Empire of the Sun live" loading="lazy">
+    </div>
+    <div class="band-photo">
+      <img src="images/eots-band.jpg" alt="Empire of the Sun" loading="lazy">
+    </div>
   </div>
 </section>
 
@@ -655,9 +773,55 @@
     });
   }, { threshold: 0.3 });
 
-  document.querySelectorAll('.photo-card, .concert-card, .message').forEach(function(el) {
+  document.querySelectorAll('.photo-card, .concert-card, .message, .intro-text, .band-photo').forEach(function(el) {
     observer.observe(el);
   });
+
+  // ---- Countdown timers ----
+  var CONCERT_1_DATE = new Date('2026-06-02T19:30:00+02:00');
+  var CONCERT_2_DATE = new Date('2026-06-18T17:00:00+02:00');
+
+  function buildCountdown(containerEl, targetDate) {
+    var now = new Date();
+    var diff = targetDate - now;
+    if (diff <= 0) {
+      containerEl.textContent = 'Tonight!';
+      return;
+    }
+    var days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    var hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    while (containerEl.firstChild) containerEl.removeChild(containerEl.firstChild);
+
+    var units = [
+      { value: days, label: 'days' },
+      { value: hours, label: 'hours' }
+    ];
+
+    units.forEach(function(u) {
+      var unitDiv = document.createElement('div');
+      unitDiv.className = 'countdown-unit';
+      var numDiv = document.createElement('div');
+      numDiv.className = 'number';
+      numDiv.textContent = u.value;
+      var labelDiv = document.createElement('div');
+      labelDiv.className = 'label';
+      labelDiv.textContent = u.label;
+      unitDiv.appendChild(numDiv);
+      unitDiv.appendChild(labelDiv);
+      containerEl.appendChild(unitDiv);
+    });
+  }
+
+  function updateCountdowns() {
+    var c1 = document.getElementById('countdown1');
+    var c2 = document.getElementById('countdown2');
+    if (c1) buildCountdown(c1, CONCERT_1_DATE);
+    if (c2) buildCountdown(c2, CONCERT_2_DATE);
+  }
+
+  updateCountdowns();
+  setInterval(updateCountdowns, 60000);
 
   // ---- Start experience ----
   document.getElementById('splash').addEventListener('click', function() {
